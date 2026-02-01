@@ -1,0 +1,103 @@
+env:
+  env_cfg_path: exploration/rl/environment/exploration_env.yaml
+
+stats:
+  plot_process_count_actual: true # if true, the actual number of processes will be plotted
+  plot_run_memory_usage: true  # if true, the memory usage will be plotted
+  plot_machine_memory_usage: true  # if true, the memory usage will be plotted
+
+train:
+  collection_starts: 0  # the number of steps before starting to collect data
+  replay_buffer_num_trajectories_to_load: null  # the number of trajectories to load in the replay buffer. set to null to load all
+  replay_buffer_load_path: null
+  replay_buffer_keep_stale_trajectories_ratio: 0.1  # the ratio of stale trajectories to keep in the replay buffer
+  total_timesteps: 2000000  # total timesteps of the experiments
+  buffer_size: 700000  # the replay memory buffer size
+  updates_per_env_step: 2  # ratio updates / env_steps
+  eval_freq: 25000  # number of env steps between evaluations
+  update_freq: 1000  # number of env steps between updates
+  cache_size: 200000  # number of recent files to cache in each worker
+  store_preprocessed_trajectory: true  # should we save the data preprocessed or raw?
+  replay_buffer_type: 3  # 0 = memory, 1 = files, 2 = redis, 3 = efficient per buffer in memory, 4 = old and new efficient replay buffers in memory, 5 = efficient length per buffer in memory
+  test_playback_resolution: 250000  # when playing back a test, how many env steps were taken between tests
+  test_playback_start: 250000  # when playing back a test, when to start testing
+  test_train: 0  # should we test on the train set?
+  deterministic_test: 0  # should the test time be deterministic?
+  replay_buffer_workers: 16 # number of workers for the dataloader
+  validation_iterations: 3
+  is_random_validation: false
+  training_end_success_rate: 0.97
+  run_analysis: 0  # should we run the analysis in validation?
+  hindsight_sharing: 1  # should we use hindsight sharing?
+  schedule: # the schedule for the training - epsilon greedy
+    name: PiecewiseSchedule
+    kwargs:
+      enable: true
+      default_value: 0.02
+      string: ExplorationSchedule
+      interpolation: linear
+      endpoints:
+        - [ 0, 1. ]
+        - [ 2500, 1. ]
+        - [ 1e5, 0.02 ]
+  replay_buffer_schedule:
+    name: PiecewiseSchedule
+    kwargs:
+      enable: false  # should we use the replay buffer schedule? only for replay buffer type 4
+      default_value: 0.
+      string: OldReplayBufferSchedule
+      interpolation: linear
+      endpoints:
+        - [ 0, 0.3 ]
+        - [ 1e5, 0.3 ]
+        - [ 7e5, 0. ]
+
+
+algorithm:  # SAC
+  actor_type: default  # the type of the actor: default, autoregressive
+  learning_starts: 2500  # timestep to start learning
+  batch_size: 256  # the batch size of sample from the reply memory
+  batch_size_factor: 10  # the batch size factor for replay buffer type 5
+  gamma: 0.99  # the discount factor gamma
+  tau: 0.005  # target smoothing coefficient (default: 0.005)
+  policy_lr: 0.000001  # the learning rate of the policy network optimizer
+  q_lr: 0.00001  # the learning rate of the Q network network optimizer
+  policy_frequency: 2  # the frequency of training policy (delayed)
+  target_network_frequency: 1  # the frequency of updates for the target nerworks
+  alpha: 0.00075  # Entropy regularization coefficient.
+  autotune: 1  # automatic tuning of the entropy coefficient if > 0
+  policy_weight_decay: 0.  # L2 reg for the policy
+  q_weight_decay: 0.  # L2 reg for the q net
+  q_grad_clip: 1.0  # clipping value for the q nets
+  policy_grad_clip: 1.0  # clipping value for the actor nets
+  per_view_latent_code: 512  # size of the latent code from every image (if vision is enabled)
+  actor_hidden_layer_size: 256  # size of each hidden layer in the actor
+  actor_hidden_layer_count: 4  # number of hidden layers in the actor
+  critic_hidden_layer_size: 256  # size of each hidden layer in the critic
+  critic_hidden_layer_count: 4  # number of hidden layers in the critic
+  critic_dropout: 0.1  # dropout rate to apply to the critic
+  critic_layer_norm: 1  # a flag indicating if layer norm should be applied to the critic
+  per_weights: 1  # should we use per weights?
+  per_sampling: 1  # should we use per sampling?
+  per_minus: 1  # should we use per minus?
+  per_bellman: 0  # should we use per bellman?
+  per_alpha: 0.6  # the alpha value for the per
+  per_beta: 0.4  # the start beta value for the per
+  per_beta_linear: 0  # should we increase beta linearly?
+  td_error_q_reduction: mean  #null=(qf1)  #mean=mean(qf1, qf2)  #max=max(qf1, qf2)
+#  agent_load_path: /home/g/guyfreund/knot_tying_url/exploration/outputs/training/ExplorationSAC/1to3/LR_1e-06_QLR_1e-05_GC_1.0_QGC_1.0_ES_PS_5e3_1_1e5_0_TS_False_AHL_4_CHL_4_UPDT_2_BQV_OFF_ISS_RND_PP_POS/12-25_22-02-2025/best_model_5  # the path to load from the agent of previous problem, e.g. for G2_R1 load G1_R1 agent
+  agent_load_path: null  # the path to load from the agent of previous problem, e.g. for G2_R1 load G1_R1 agent
+  actor_freeze_layers: 0  # the number of layers to freeze in the actor
+  critic_freeze_layers: 0  # the number of layers to freeze in the critic
+  bc: 0  # should we use behavior cloning?
+  bc_lambda: 1.  # the coefficient of the behavior cloning loss
+  freeze_schedule:
+    name: PiecewiseSchedule
+    kwargs:
+      enable: false  # should we freeze the critic and actor?
+      default_value: 0
+      string: FreezeCriticsAndActorWarmUpSchedule
+      interpolation: step
+      endpoints:
+        - [ 0, 1 ]
+        - [ 1e5, 0 ]

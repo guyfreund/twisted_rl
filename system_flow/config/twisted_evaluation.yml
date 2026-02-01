@@ -1,0 +1,130 @@
+GENERAL_PARAMS:
+    h_value_for_states_selection: "system_flow/metrics/h_values_3_crosses.txt"
+    SAVE:
+        show_image: False
+        get_video: False
+        frame_rate: 60
+    output_path: outputs/system
+    states_file_path: "system_flow/metrics/all_3_crosses_states.txt" #"metrics/all_1_crosses_states.txt" #"metrics/all_4_crosses_states.txt" #"metrics/all_1_crosses_states.txt"
+    k: 10
+    use_states: [0,-1]
+    unseen_states: False
+
+HIGH_LEVEL:
+    h_path: "system_flow/metrics/h_values.txt"
+    type: "guided_by_high_level"
+    #one_step_cruve: True # if the planner can move one cross each time and not cant move two
+    max_depth: 3 #max depth of the high level planner
+    initial_state: []
+    goal_state:  [["Reide1", 0, 1, 1]] #, ["cross", 0, 1, 1], ["cross", 2, 0, 1]] 
+    SELECT_UNUSED_STATE: False
+    SELECT_HIGHER_CROSS_STATES: True
+    env_path: "mujoco_infra/assets/rope_v3_21_links.xml" #"assets/rope_v3_21_links_friction_95.xml" #"assets/rope_v3_21_links_friction_105.xml"
+    only_R1: false
+
+LOW_LEVEL:
+    NAME: MultiRLPlanner  #RLPlanner #S2APlanner
+    max_tries: 12
+    batch_size: 12
+    random_search_threshold: 0.05
+    STATE2STATE_PARMS:
+        paths: []
+        input_size: 53
+        output_size: 19
+        num_of_links: 21
+        dropout: 0
+        return_with_init_position: True
+        ensemble_prediction: 0
+        random_search_steps: 100
+
+    Select_Samples:
+        num_samples: 6
+        Sort_Actions:
+            enable: False
+            sort_configuration_uncertainty: False
+            sort_configuration_uncertainty_reverse: True
+
+    Calculate_Uncertainty:
+        ensemble: False
+        prediction: False
+        topology: False
+
+    RANDOM_ACTION:
+        low_index: 0
+        high_index: 20
+        low_height: 0.001
+        high_height: 0.07
+        low_end_location: -0.5
+        high_end_location: 0.5
+
+    STATE2ACTION_PARMS:
+        output_ranges:
+            height: [0.0001,0.07]
+            x: [-0.5,0.5]
+            y: [-0.5,0.5]
+        load: True
+#        path: /home/guyfreund/data/mantansudry/knot_tying_shared_data/s2a/model_val_action.pth  # TODO: add to repo
+        path: /data/mantansudry/knot_tying_shared_data/s2a/model_val_action.pth  # TODO: add to repo
+        input_size: 257
+        output_size: 27
+#        input_size: 280
+#        output_size: null
+        two_headed: True
+        dist: normal
+
+    RL:
+        max_steps: null
+        variants:
+            h:
+                G_R1: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/H_BASELINE/G_R1/best_model_collection
+                G_R2: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/H_BASELINE/G_R2/best_model_collection
+                G_Cross: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/H_BASELINE/G_Cross/best_model_collection
+            m:
+                G_R1: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/M_BASELINE/G_R1/best_model_collection
+                G_R2: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/M_BASELINE/G_R2/best_model_collection
+                G_Cross: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/M_BASELINE/G_Cross/best_model_collection
+        agents:
+            # G
+            G: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/G_BASELINE/G/best_model_collection
+            G_R1: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/A_BASELINE/G_R1/best_model_collection
+            G_R2: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/A_BASELINE/G_R2/best_model_collection
+            G_Cross: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/A_BASELINE/G_Cross/best_model_collection
+            # G0
+            G0_R1: null
+            G0_R2: null
+            G0: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/C_BASELINE/G0/best_model_collection
+            # G1
+            G1_R1: /home/g/guyfreund/twisted_rl/exploration/outputs/training/ExplorationSAC/06-04-2025_09-39/G1_R1/best_model_collection_7
+            G1_R2: /home/g/guyfreund/twisted_rl/exploration/outputs/training/ExplorationSAC/06-04-2025_09-39/G1_R2/best_model_collection
+            G1_Cross: /home/g/guyfreund/twisted_rl/exploration/outputs/training/ExplorationSAC/06-04-2025_09-39/G1_Cross/best_model_collection
+            G1: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/C_BASELINE/G1/best_model_collection
+            # G2
+            G2_R1: /home/g/guyfreund/twisted_rl/exploration/outputs/training/ExplorationSAC/11-04-2025_11-19/G2_R1/best_model_collection
+            G2_R2: /home/g/guyfreund/twisted_rl/exploration/outputs/training/ExplorationSAC/11-04-2025_11-19/G2_R2/best_model_collection
+            G2_Cross: /home/g/guyfreund/twisted_rl/exploration/outputs/training/ExplorationSAC/11-04-2025_11-19/G2_Cross/best_model_collection_7
+            G2: /home/g/guyfreund/twisted_rl/exploration/outputs/training/TWISTED_RL/C_BASELINE/G2/best_model_collection
+
+GRAPH:
+
+EVALUATION:
+    iterations: 1
+    number_of_seeds: 1
+    seeds:
+    - 0
+    - 7
+    - 42
+    - 101
+    - 324
+    states_type: 3-eval  #easy  #hard  #medium  #3-eval  #4-eval  #p-data
+    p_datas:
+    - '1: U 6 -\n2: O 5 -\n3: U 8 +\n4: O 7 +\n5: U 2 -\n6: O 1 -\n7: U 4 +\n8: O 3 +'
+    - '1: O 6 +\n2: U 5 +\n3: O 8 -\n4: U 7 -\n5: O 2 +\n6: U 1 +\n7: O 4 -\n8: U 3 -'
+    states:
+        '3':
+            time:
+                minutes: 30
+                seconds: 0
+        '4':
+            time:
+                minutes: 30
+                seconds: 0

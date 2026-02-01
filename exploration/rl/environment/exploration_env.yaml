@@ -1,0 +1,69 @@
+num_cpus: 88
+seed: 42
+num_of_links: 21
+save_videos: False
+
+file_system:
+  output_dir: null
+  exceptions_dir: null
+  env_path: mujoco_infra/assets/rope_v3_21_links.xml
+
+env:
+  num_workers: null
+  seed: null
+  exceptions_dir: null
+  env_path: null
+  num_links: null
+  min_crosses: 0
+  max_crosses: 1
+  depth: 1
+  high_level_actions: [R1]
+  goal_reward: 1
+  neg_reward: -1
+  stay_reward: 0
+  max_steps: 7
+  link_min: 0.
+  link_max: 1.
+  z_min: 0.0001
+  z_max: 0.07
+  x_min: -0.5
+  x_max: 0.5
+  y_min: -0.5
+  y_max: 0.5
+  her: True
+
+  reachable_configurations:
+#    name: ReachableConfigurations
+    name: SumTreeReachableConfigurations
+#    replay_buffer_files_path: null
+    replay_buffer_files_path:
+      - /home/guyfreund/knot_tying_url/exploration/outputs/training/ExplorationSAC/06-04-2025_09-39/G1_R1/replay_buffer_files
+      - /home/guyfreund/knot_tying_url/exploration/outputs/training/ExplorationSAC/06-04-2025_09-39/G1_R2/replay_buffer_files
+      - /home/guyfreund/knot_tying_url/exploration/outputs/training/ExplorationSAC/06-04-2025_09-39/G1_Cross/replay_buffer_files
+      - /home/guyfreund/knot_tying_url/exploration/outputs/training/ExplorationSAC/11-04-2025_11-19/G2_R1/replay_buffer_files
+      - /home/guyfreund/knot_tying_url/exploration/outputs/training/ExplorationSAC/11-04-2025_11-19/G2_R2/replay_buffer_files
+      - /home/guyfreund/knot_tying_url/exploration/outputs/training/ExplorationSAC/11-04-2025_11-19/G2_Cross/replay_buffer_files
+    sample_size: 100000
+
+  preprocessor:
+    name: Preprocessor
+    kwargs:
+      num_of_links: null
+      return_with_init_position: True
+      categorical_link: False  # do not change this
+      use_qpos: False
+      use_qvel: False
+      use_pos: True
+      use_action_type_for_goal_representation: True
+
+  goal_selector:
+    name: GoalSelector
+    kwargs:
+      min_crosses: null
+      max_crosses: null
+      depth: null
+      high_level_actions: null
+
+  initial_state_selector:
+    name: InitialStateSelector
+    kwargs: {}
