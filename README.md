@@ -17,7 +17,7 @@
   <a href="https://sites.google.com/view/twisted-rl">
     <img src="https://img.shields.io/badge/Project_Page-🔗-blue?style=for-the-badge" alt="Project Page">
   </a>
-  <a href="YOUR_PAPER_URL_HERE">
+  <a href="https://arxiv.org/abs/2602.14526">
     <img src="https://img.shields.io/badge/Paper-📄-red?style=for-the-badge" alt="Paper">
   </a>
 </p>
